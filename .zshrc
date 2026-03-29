@@ -121,6 +121,9 @@ rm() {
     esac
 }
 
+if command -v gpg >/dev/null 2>&1; then
+  export GPG_TTY=$(tty 2>/dev/null || echo)
+fi
 export CLICOLOR=1
 export TERM=xterm-256color
 export LESS=-R
