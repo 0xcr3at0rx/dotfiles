@@ -1,0 +1,147 @@
+#!/bin/sh
+
+VOL_STEP=5
+BRI_STEP=10
+
+error() { echo "Error: $1" >&2; exit 1; }
+has() { command -v "$1" >/dev/null 2>&1; }
+
+get_audio() {
+    has wpctl && echo wpctl && return
+    has pactl && echo pactl && return
+    has amixer && echo amixer && return
+    echo none
+}
+
+get_bl() {
+    for d in /sys/class/backlight/*; do
+        [ -d "$d" ] && echo "$d" && return
+    done
+    return 1
+}
+
+volume_up() {
+    s=${1:-$VOL_STEP}
+    case "$(get_audio)" in
+        wpctl) wpctl set-volume @DEFAULT_AUDIO_SINK@ "$s%+" ;;
+        pactl) pactl set-sink-volume @DEFAULT_SINK@ +"$s%" ;;
+        amixer) amixer set Master "${s}%+" unmute ;;
+        *) error "No audio tool" ;;
+    esac
+}
+
+volume_down() {
+    s=${1:-$VOL_STEP}
+    case "$(get_audio)" in
+        wpctl) wpctl set-volume @DEFAULT_AUDIO_SINK@ "$s%-" ;;
+        pactl) pactl set-sink-volume @DEFAULT_SINK@ -"$s%" ;;
+        amixer) amixer set Master "${s}%-" unmute ;;
+        *) error "No audio tool" ;;
+    esac
+}
+
+volume_toggle() {
+    case "$(get_audio)" in
+        wpctl) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+        pactl) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
+        amixer) amixer set Master toggle ;;
+        *) error "No audio tool" ;;
+    esac
+}
+
+mic_toggle() {
+    case "$(get_audio)" in
+        wpctl) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+        pactl) pactl set-source-mute @DEFAULT_SOURCE@ toggle ;;
+        amixer) amixer set Capture toggle ;;
+        *) error "No audio tool" ;;
+    esac
+}
+
+mic_mute() {
+    case "$(get_audio)" in
+        wpctl) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1 ;;
+        pactl) pactl set-source-mute @DEFAULT_SOURCE@ 1 ;;
+        amixer) amixer set Capture nocap ;;
+        *) error "No audio tool" ;;
+    esac
+}
+
+mic_unmute() {
+    case "$(get_audio)" in
+        wpctl) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0 ;;
+        pactl) pactl set-source-mute @DEFAULT_SOURCE@ 0 ;;
+        amixer) amixer set Capture cap ;;
+        *) error "No audio tool" ;;
+    esac
+}
+
+brightness_up() {
+    s=${1:-$BRI_STEP}
+    bl=$(get_bl) || error "No backlight"
+    cur=$(cat "$bl/brightness")
+    max=$(cat "$bl/max_brightness")
+    inc=$((max * s / 100))
+    new=$((cur + inc))
+    [ "$new" -gt "$max" ] && new=$max
+    echo "$new" > "$bl/brightness" || error "Permission denied"
+}
+
+brightness_down() {
+    s=${1:-$BRI_STEP}
+    bl=$(get_bl) || error "No backlight"
+    cur=$(cat "$bl/brightness")
+    max=$(cat "$bl/max_brightness")
+    dec=$((max * s / 100))
+    new=$((cur - dec))
+    [ "$new" -lt 1 ] && new=1
+    echo "$new" > "$bl/brightness" || error "Permission denied"
+}
+
+status() {
+    echo "audio: $(get_audio)"
+    bl=$(get_bl 2>/dev/null)
+    [ -n "$bl" ] && {
+        cur=$(cat "$bl/brightness")
+        max=$(cat "$bl/max_brightness")
+        echo "brightness: $((cur * 100 / max))%"
+    }
+}
+
+usage() {
+    echo "usage:"
+    echo "$0 volume up|down|toggle [step]"
+    echo "$0 mic toggle|mute|unmute"
+    echo "$0 brightness up|down [step]"
+    echo "$0 status"
+}
+
+[ $# -eq 0 ] && usage && exit 0
+
+case "$1" in
+    volume)
+        case "$2" in
+            up) volume_up "$3" ;;
+            down) volume_down "$3" ;;
+            toggle) volume_toggle ;;
+            *) error "Invalid volume" ;;
+        esac
+        ;;
+    mic)
+        case "$2" in
+            toggle) mic_toggle ;;
+            mute) mic_mute ;;
+            unmute) mic_unmute ;;
+            *) error "Invalid mic" ;;
+        esac
+        ;;
+    brightness)
+        case "$2" in
+            up) brightness_up "$3" ;;
+            down) brightness_down "$3" ;;
+            *) error "Invalid brightness" ;;
+        esac
+        ;;
+    status) status ;;
+    *) usage ;;
+esac
