@@ -144,14 +144,20 @@ static const char *menucmd[] = {
     "-m", "#ba0959",  // urgent
     NULL
 };
-static const char *lockcmd[] = {
-    "waylock",
-    "-init-color", "0x121212",
-    "-input-color", "0x1bfd9c",
-    "-input-alt-color", "0x2a2a2a",
-    "-fail-color", "0xba0959",
+static const char *lockandsuspend[] = {
+    "sh", "-c",
+    "waylock -init-color 0x121212 -input-color 0x1bfd9c -input-alt-color 0x2a2a2a -fail-color 0xba0959 & "
+    "sleep 0.1; loginctl suspend",
     NULL
 };
+// static const char *lockcmd[] = {
+//     "waylock",
+//     "-init-color", "0x121212",
+//     "-input-color", "0x1bfd9c",
+//     "-input-alt-color", "0x2a2a2a",
+//     "-fail-color", "0xba0959",
+//     NULL
+// };
 static const char *volume_up[]       = {"control", "volume", "up", NULL};
 static const char *volume_down[]     = {"control", "volume", "down", NULL};
 static const char *volume_toggle[]   = {"control", "volume", "toggle", NULL};
@@ -194,7 +200,7 @@ static const Key keys[] = {
 	{ 0,       		     XF86XK_AudioMicMute,       spawn,      {.v = mic_toggle } },
 	{ 0, 			     XF86XK_MonBrightnessUp,    spawn,      {.v = brightness_up } },
 	{ 0, 			     XF86XK_MonBrightnessDown,  spawn,      {.v = brightness_down } },
-	{ 0,			     XF86XK_Display,		spawn, 	    {.v = lockcmd }},
+	{ 0,			     XF86XK_Display,		spawn, 	    {.v = lockandsuspend }},
 	{ 0,			     XKB_KEY_Print, 		spawn, 	    {.v = screenshot }},
 	TAGKEYS(          XKB_KEY_1, XKB_KEY_exclam,                        0),
 	TAGKEYS(          XKB_KEY_2, XKB_KEY_at,                            1),
