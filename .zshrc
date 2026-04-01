@@ -80,7 +80,7 @@ alias music="kew"
 alias nd="nix develop . --command $SHELL"
 alias zshrc="nvim ~/.zshrc"
 
-cheat() {
+help() {
     if [ $# -eq 0 ]; then
         echo "Usage: cheat <topic>"
         return 1
@@ -90,7 +90,11 @@ cheat() {
     query=$(printf "%s+" "$@")
     query=${query%+}
 
-    curl -s "https://cheat.sh/$query?T" | bat --style=plain --theme="ansi" -l bash 
+    curl -s "https://cheat.sh/$query?T" | bat --theme="ansi" -p -l bash 
+}
+
+man() {
+    command man "$@" | bat --theme="ansi" -p -l man
 }
 
 rm() {
