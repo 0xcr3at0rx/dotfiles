@@ -171,6 +171,7 @@ xx=95:"
 
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+eval "$(zellij setup --generate-completion=zsh)"
 
 if [ -e ~/.nix-profile/etc/profile.d/nix.sh ]; then
   . ~/.nix-profile/etc/profile.d/nix.sh
