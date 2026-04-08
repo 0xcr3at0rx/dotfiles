@@ -1,0 +1,66 @@
+image: alpine/latest
+packages:
+  - musl-dev
+  - eudev-libs
+  - eudev-dev
+  - linux-headers
+  - meson
+  - ninja
+  - gcc
+  - scdoc
+  - libxcb-dev
+  - xcb-util-wm-dev
+  - xcb-util-cursor-dev
+  - cairo-dev
+  - yaml-dev
+  - wayland-dev
+  - wayland-protocols
+  - wlroots-dev
+  - json-c-dev
+  - libmpdclient-dev
+  - alsa-lib-dev
+  - pulseaudio-dev
+  - pipewire-dev
+  - ttf-dejavu
+  - gcovr
+  - python3
+  - py3-pip
+  - flex
+  - bison
+
+sources:
+  - https://git.sr.ht/~dnkl/yambar
+
+# triggers:
+#   - action: email
+#     condition: failure
+#     to: <comitter>
+
+tasks:
+  - fcft: |
+      cd yambar/subprojects
+      git clone https://codeberg.org/dnkl/fcft.git
+      cd ../..
+  - setup: |
+      mkdir -p bld/debug bld/release bld/x11-only bld/wayland-only bld/plugs-are-shared
+      meson --buildtype=debug -Db_coverage=true yambar bld/debug
+      meson --buildtype=minsize yambar bld/release
+      meson --buildtype=debug -Dbackend-x11=enabled -Dbackend-wayland=disabled yambar bld/x11-only
+      meson --buildtype=debug -Dbackend-x11=disabled -Dbackend-wayland=enabled yambar bld/wayland-only
+      meson --buildtype=debug -Dcore-plugins-as-shared-libraries=true yambar bld/plugs-are-shared
+  - build: |
+      ninja -C bld/debug -k0
+      ninja -C bld/release -k0
+      ninja -C bld/x11-only -k0
+      ninja -C bld/wayland-only -k0
+      ninja -C bld/plugs-are-shared -k0
+  - tests: |
+      meson test -C bld/debug --print-errorlogs
+      meson test -C bld/release --print-errorlogs
+      meson test -C bld/x11-only --print-errorlogs
+      meson test -C bld/wayland-only --print-errorlogs
+      meson test -C bld/plugs-are-shared --print-errorlogs
+  - coverage: |
+      ninja -C bld/debug coverage-html
+      ninja -C bld/debug coverage-text
+      tail -2 bld/debug/meson-logs/coverage.txt

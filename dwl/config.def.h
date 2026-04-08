@@ -14,7 +14,7 @@ static const unsigned int gappx            = 2; /* gap pixel between windows */
 static const unsigned int borderpx         = 1;  /* border pixel of windows */
 static const int showbar                   = 1; /* 0 means no bar */
 static const int topbar                    = 1; /* 0 means bottom bar */
-static const char *fonts[]                 = {"IosevkaTerm Nerd Font:size=12"};
+static const char *fonts[]                 = {"Iosevka Nerd Font Mono:size=12"};
 static const float rootcolor[]		   = COLOR(0x121212FF);
 /* This conforms to the xdg-protocol. Set the alpha to zero to restore the old behavior */
 static const float fullscreen_bg[]         = {0.0f, 0.0f, 0.0f, 1.0f}; /* You can also use glsl colors */
@@ -135,7 +135,7 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 static const char *termcmd[] = { "foot", NULL };
 static const char *menucmd[] = { 
     "wmenu-run",
-    "-f", "IosevkaTerm Nerd Font 12",
+    "-f", "Iosevka Nerd Font Mono 12",
     "-N", "#121212",  // background
     "-n", "#cccccc",  // normal text
     "-S", "#1bfd9c",  // selected text (accent)

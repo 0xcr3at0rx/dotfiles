@@ -342,24 +342,15 @@ require('lazy').setup({
 
   -- LSP Plugins
   {
-    -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- Automatically install LSPs and related tools to stdpath for Neovim
-      -- Mason must be loaded before its dependents so we need to set it up here.
-      -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
       {
         'mason-org/mason.nvim',
-        ---@module 'mason.settings'
-        ---@type MasonSettings
-        ---@diagnostic disable-next-line: missing-fields
         opts = {},
       },
-      -- Maps LSP server names between nvim-lspconfig and Mason package names.
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
-      -- Useful status updates for LSP.
       { 'j-hui/fidget.nvim', opts = {} },
     },
     config = function()
@@ -417,11 +408,6 @@ require('lazy').setup({
           --  For example, in C this would take you to the header.
           map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
-          -- The following two autocommands are used to highlight references of the
-          -- word under your cursor when your cursor rests there for a little while.
-          --    See `:help CursorHold` for information about when this is executed
-          --
-          -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client:supports_method('textDocument/documentHighlight', event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
@@ -446,35 +432,17 @@ require('lazy').setup({
             })
           end
 
-          -- The following code creates a keymap to toggle inlay hints in your
-          -- code, if the language server you are using supports them
-          --
-          -- This may be unwanted, since they displace some of your code
           if client and client:supports_method('textDocument/inlayHint', event.buf) then
             map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, '[T]oggle Inlay [H]ints')
           end
         end,
       })
 
-      -- Enable the following language servers
-      --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-      --  See `:help lsp-config` for information about keys and how to configure
-      ---@type table<string, vim.lsp.Config>
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-
+        clangd = {},
+        rust_analyzer = {},
         stylua = {}, -- Used to format Lua code
 
-        -- Special Lua Config, as recommended by neovim help docs
         lua_ls = {
           on_init = function(client)
             if client.workspace_folders then
@@ -504,17 +472,8 @@ require('lazy').setup({
         },
       }
 
-      -- Ensure the servers and tools above are installed
-      --
-      -- To check the current status of installed tools and/or manually install
-      -- other tools, you can run
-      --    :Mason
-      --
-      -- You can press `g?` for help in this menu.
       local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        -- You can add other tools here that you want Mason to install
-      })
+      vim.list_extend(ensure_installed, {})
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -537,14 +496,9 @@ require('lazy').setup({
         desc = '[F]ormat buffer',
       },
     },
-    ---@module 'conform'
-    ---@type conform.setupOpts
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
         local disable_filetypes = { c = true, cpp = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
@@ -557,11 +511,6 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
     },
   },
@@ -576,16 +525,10 @@ require('lazy').setup({
         'L3MON4D3/LuaSnip',
         version = '2.*',
         build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
           if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then return end
           return 'make install_jsregexp'
         end)(),
         dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
           -- {
           --   'rafamadriz/friendly-snippets',
           --   config = function()
@@ -596,8 +539,6 @@ require('lazy').setup({
         opts = {},
       },
     },
-    ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
     opts = {
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions

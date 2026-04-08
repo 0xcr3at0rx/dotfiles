@@ -20,7 +20,6 @@ zinit light MichaelAquilina/zsh-autoswitch-virtualenv
 
 zinit snippet OMZP::command-not-found
 zinit snippet OMZP::extract
-zinit snippet OMZP::colored-man-pages
 zinit snippet OMZP::copyfile
 zinit snippet OMZP::thefuck
 
@@ -73,12 +72,14 @@ alias vi="nvim"
 alias vim="nvim"
 alias grep="rg"
 alias find="fd"
+alias hx="helix"
 alias clear="printf '\\033c'"
 alias reload="source $HOME/.zshrc"
 alias ani-cli="ani-cli --dub"
 alias music="kew"
 alias nd="nix develop . --command $SHELL"
-alias zshrc="nvim ~/.zshrc"
+alias zshrc="helix ~/.zshrc"
+alias pdf="zathura"
 
 help() {
     if [ $# -eq 0 ]; then
@@ -138,6 +139,8 @@ export GOBIN="$HOME/.local/bin"
 export GOCACHE="$HOME/.cache/go-build"
 export PATH="$PATH:$GOBIN"
 export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH"
 export FZF_DEFAULT_OPTS="
 --layout=reverse
 --border=sharp

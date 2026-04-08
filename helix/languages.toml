@@ -1,0 +1,16 @@
+[[language]]
+name = "rust"
+file-types = ["rs"]
+auto-format = true
+formatter = { command = "rustfmt" }
+language-servers = ["rust-analyzer"]
+
+[language-server.rust-analyzer]
+command = "/home/drack/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer"
+checkOnSave.command = "clippy"
+cargo.allFeatures = true
+diagnostics.enable = true
+inlayHints.enable = true
+hover.enable = true
+completion.enable = true
+codeAction.enable = true

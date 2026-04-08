@@ -1,0 +1,37 @@
+pkgname=yambar-wayland
+pkgver=1.11.0
+pkgrel=1
+pkgdesc="Simplistic and highly configurable status panel for Wayland"
+arch=('x86_64' 'aarch64')
+url=https://codeberg.org/dnkl/yambar
+license=(mit)
+conflicts=('yambar')
+provides=('yambar')
+makedepends=('meson' 'ninja' 'scdoc' 'tllist>=1.0.1')
+depends=(
+  'wayland'
+  'pixman'
+  'libyaml'
+  'alsa-lib'
+  'libudev.so'
+  'json-c'
+  'libmpdclient'
+  'libpulse'
+  'pipewire'
+  'fcft>=3.0.0' 'fcft<4.0.0')
+source=()
+changelog=CHANGELOG.md
+
+pkgver() {
+  cd ../.git &> /dev/null && git describe --tags --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
+      head -3 ../meson.build | grep version | cut -d "'" -f 2
+}
+
+build() {
+  meson --buildtype=release --prefix=/usr --wrap-mode=nofallback -Db_lto=true -Dbackend-x11=disabled -Dbackend-wayland=enabled ../
+  ninja
+}
+
+package() {
+  DESTDIR="${pkgdir}/" ninja install
+}
