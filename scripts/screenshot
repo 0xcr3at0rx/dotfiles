@@ -1,9 +1,0 @@
-#!/bin/sh
-
-DIR="$HOME/screenshots"
-mkdir -p "$DIR"
-
-FILE="$DIR/screenshot_$(date +%Y_%m_%d_%H_%M_%S).png"
-
-grim -g "$(slurp)" - | tee "$FILE" | wl-copy
-

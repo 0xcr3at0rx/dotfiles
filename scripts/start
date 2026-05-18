@@ -1,3 +1,0 @@
-#!/bin/sh
-export $(dbus-launch)
-slstatus -s |  dbus-run-session dwl
