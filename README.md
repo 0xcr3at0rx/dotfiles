@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal configurations and suckless-style tools for a Wayland-based environment.
+Personal configurations.
 
 ## Note
 
